@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${ZBX_DB_PASSWORD}
+      POSTGRES_DB: zabbix
+    volumes: [dbdata:/var/lib/postgresql/data]
+
+  server:
+    image: zabbix/zabbix-server-pgsql:ubuntu-7.0-latest
+    restart: unless-stopped
+    depends_on: [db]
+    environment:
+      DB_SERVER_HOST: db
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${ZBX_DB_PASSWORD}
+      POSTGRES_DB: zabbix
+    ports: ["10051:10051"]
+
+  web:
+    image: zabbix/zabbix-web-nginx-pgsql:ubuntu-7.0-latest
+    restart: unless-stopped
+    depends_on: [server]
+    environment:
+      ZBX_SERVER_HOST: server
+      DB_SERVER_HOST: db
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${ZBX_DB_PASSWORD}
+      POSTGRES_DB: zabbix
+      PHP_TZ: Europe/Paris
+    ports: ["8080:8080"]
+
+volumes:
+  dbdata:

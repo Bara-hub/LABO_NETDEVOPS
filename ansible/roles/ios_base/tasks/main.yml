@@ -1,0 +1,46 @@
+---
+# ==========================================================
+# SOCLE DE BASE CISCO IOS
+# ==========================================================
+
+- name: Configurer le nom d'hôte et le domaine
+  cisco.ios.ios_system:
+    hostname: "{{ inventory_hostname }}"
+    domain_name: "{{ site.domain }}"
+    name_servers:
+      - "{{ dhcp.dns }}"
+      - "[192.168.110.132]"
+- name: Configurer la bannière MOTD
+  cisco.ios.ios_banner:
+    banner: motd
+    text: |
+      ****************************************************************
+      * ACCES SECURISE - LABORATOIRE NETDEVOPS ENTREPRISE            *
+      * Tout acces non autorise est strictement interdit.             *
+      ****************************************************************
+    state: present
+
+- name: Configurer la synchronisation NTP et les horodatages
+  cisco.ios.ios_config:
+    lines:
+      - "ntp server {{ site.ntp_upstream }}"
+      - service timestamps debug datetime msec
+      - service timestamps log datetime msec
+
+- name: Configurer le service SNMP pour la supervision Zabbix
+  cisco.ios.ios_config:
+    lines:
+      - snmp-server community public RO
+      - snmp-server community NetDevOpsRO RO
+      - snmp-server location "Lab-NetDevOps"
+      - snmp-server contact "admin@{{ site.domain }}"
+
+- name: Sécuriser les lignes VTY et la session console
+  cisco.ios.ios_config:
+    parents:
+      - line vty 0 4
+    lines:
+      - transport input ssh
+      - exec-timeout 10 0
+      - logging synchronous
+

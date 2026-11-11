@@ -1,0 +1,38 @@
+---
+# ==========================================================
+# Sauvegarde complète avant tout déploiement
+# Couvre : routeurs IOS (R-EDGE, R-CORE) + pare-feu ASA (FW-EDGE)
+# ==========================================================
+
+# --- 1. Sauvegarde des routeurs IOS ---
+- name: Sauvegarder les configurations des routeurs IOS
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Sauvegarder la configuration courante (IOS)
+      cisco.ios.ios_config:
+        backup: true
+        backup_options:
+          dir_path: "{{ inventory_dir }}/../backups"
+          filename: "{{ inventory_hostname }}-backup.cfg"
+
+# --- 2. Sauvegarde du pare-feu ASA ---
+- name: Sauvegarder la configuration du pare-feu ASA
+  hosts: asa
+  gather_facts: false
+
+  tasks:
+    - name: Récupérer la running-config de FW-EDGE
+      cisco.asa.asa_command:
+        commands:
+          - show running-config
+      register: asa_running_config
+      changed_when: false
+
+    - name: Écrire la configuration ASA sur le runner
+      ansible.builtin.copy:
+        content: "{{ asa_running_config.stdout[0] }}"
+        dest: "{{ inventory_dir }}/../backups/{{ inventory_hostname }}-backup.cfg"
+        mode: "0640"
+      delegate_to: localhost

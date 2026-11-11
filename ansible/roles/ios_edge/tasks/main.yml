@@ -1,0 +1,113 @@
+---
+# ==========================================================
+# 1. LOOPBACK
+# ==========================================================
+
+- name: Configurer Loopback0 de R-EDGE
+  cisco.ios.ios_config:
+    parents:
+      - interface Loopback0
+    lines:
+      - "ip address {{ loopbacks.edge }} 255.255.255.255"
+
+# ==========================================================
+# 2. ACL NAT
+# ==========================================================
+
+- name: Vérifier les paramètres NAT
+  ansible.builtin.assert:
+    that:
+      - edge_nat.inside_interface != edge_nat.outside_interface
+      - edge_nat.acl_name | length > 0
+    fail_msg: "Les paramètres NAT de R-EDGE sont invalides."
+  when: edge_nat.enabled | bool
+
+- name: Configurer l'ACL NAT-INSIDE
+  cisco.ios.ios_acls:
+    config:
+      - afi: ipv4
+        acls:
+          - name: "{{ edge_nat.acl_name }}"
+            acl_type: extended
+            aces:
+              - sequence: 10
+                grant: deny
+                protocol: ip
+                source:
+                  address: 10.0.0.0
+                  wildcard_bits: 0.255.255.255
+                destination:
+                  address: "{{ edge_nat.excluded_address }}"
+                  wildcard_bits: "{{ edge_nat.excluded_wildcard }}"
+
+              - sequence: 20
+                grant: permit
+                protocol: ip
+                source:
+                  address: "{{ edge_nat.source_address }}"
+                  wildcard_bits: "{{ edge_nat.source_wildcard }}"
+                destination:
+                  any: true
+    state: merged
+  when: edge_nat.enabled | bool
+
+# ==========================================================
+# 3. INTERFACE EXTERNE NAT
+# ==========================================================
+
+- name: Configurer l'interface externe NAT
+  cisco.ios.ios_config:
+    parents:
+      - "interface {{ edge_nat.outside_interface }}"
+    lines:
+      - ip nat outside
+  when: edge_nat.enabled | bool
+
+# ==========================================================
+# 4. INTERFACE INTERNE NAT
+# ==========================================================
+
+- name: Configurer l'interface interne NAT
+  cisco.ios.ios_config:
+    parents:
+      - "interface {{ edge_nat.inside_interface }}"
+    lines:
+      - ip nat inside
+  when: edge_nat.enabled | bool
+
+# ==========================================================
+# 5. PAT
+# ==========================================================
+
+- name: Configurer PAT sur R-EDGE
+  cisco.ios.ios_config:
+    lines:
+      - >-
+        ip nat inside source list {{ edge_nat.acl_name }}
+        interface {{ edge_nat.outside_interface }} overload
+  when: edge_nat.enabled | bool
+
+# ==========================================================
+# 6. OSPF
+# ==========================================================
+
+- name: Configurer OSPF sur R-EDGE
+  cisco.ios.ios_ospfv2:
+    config:
+      processes:
+        - process_id: "{{ ospf.process_id }}"
+          router_id: "{{ loopbacks.edge }}"
+          passive_interfaces:
+            default: true
+            interface:
+              - name: "{{ ospf.active_interfaces.edge | first }}"
+                set_interface: false
+          network:
+            - address: "{{ transit.network }}"
+              wildcard_bits: "{{ transit.wildcard }}"
+              area: "{{ ospf.area }}"
+
+            - address: "{{ loopbacks.edge }}"
+              wildcard_bits: "0.0.0.0"
+              area: "{{ ospf.area }}"
+    state: merged

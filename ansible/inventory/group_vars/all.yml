@@ -1,0 +1,89 @@
+---
+site:
+  name: lab-entreprise
+  domain: lab.local
+  ntp_upstream: 192.168.110.2
+  ntp_internal: 10.10.0.1
+  zabbix_server: 10.10.99.10
+
+# Réseau de transit entre R-EDGE et R-CORE
+transit:
+  subnet: 10.10.0.0/30
+  network: 10.10.0.0
+  wildcard: 0.0.0.3
+  edge: 10.10.0.1
+  core: 10.10.0.2
+
+# Interfaces Loopback
+loopbacks:
+  edge: 10.255.0.1
+  core: 10.255.0.2
+
+# Réseaux VLAN prévus dans l'architecture
+vlans:
+  - id: 10
+    name: USERS
+    subnet: 10.10.10.0/24
+    gateway: 10.10.10.1
+
+  - id: 20
+    name: SERVERS
+    subnet: 10.10.20.0/24
+    gateway: 10.10.20.1
+
+access_ports:
+  - interface: GigabitEthernet0/1
+    vlan: 10
+    description: PC-USER
+
+# Configuration DHCP
+dhcp:
+  pool: USERS
+  vlan: 10
+  excluded:
+    - 10.10.10.1
+    - 10.10.10.99
+  dns: 1.1.1.1
+
+# DHCP désactivé par défaut
+core_dhcp_enabled: false
+
+# Désactivé tant que le trunk vers un switch n'est pas confirmé
+core_vlan_trunk_enabled: false
+
+# Réseau LAN actuellement raccordé à R-CORE G0/1
+core_lan:
+  enabled: true
+  network: 10.10.10.0
+  wildcard: 0.0.0.255
+  interface: GigabitEthernet0/1
+
+# Configuration OSPF
+# IMPORTANT : process_id = 10 correspond à la config Day-0 dans topology.yaml
+# (router ospf 10). Ne pas changer sans modifier topology.yaml en parallèle.
+ospf:
+  process_id: 10
+  area: 0
+  active_interfaces:
+    edge:
+      - GigabitEthernet0/1
+    core:
+      - GigabitEthernet0/0
+
+# ACL USERS :
+# Aucune règle appliquée tant que la politique de filtrage
+# et l'interface cible ne sont pas validées.
+acl_users: []
+acl_users_interface: ""
+
+# NAT sur R-EDGE :
+# Désactivé par défaut jusqu'à validation de la liaison FW-EDGE.
+edge_nat:
+  enabled: false
+  acl_name: NAT-INSIDE
+  inside_interface: GigabitEthernet0/1
+  outside_interface: GigabitEthernet0/0
+  source_address: 10.10.0.0
+  source_wildcard: 0.0.255.255
+  excluded_address: 192.168.100.0
+  excluded_wildcard: 0.0.0.255

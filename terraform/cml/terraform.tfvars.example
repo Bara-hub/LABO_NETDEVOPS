@@ -1,0 +1,6 @@
+# Copier ce fichier vers terraform.tfvars uniquement sur votre poste local.
+# Ne jamais versionner terraform.tfvars.
+address     = "https://ADRESSE-CML2"
+username    = "admin"
+# password est fourni via TF_VAR_password pour éviter de le stocker dans un fichier.
+# skip_verify = true # uniquement si le certificat TLS de CML est non approuvé

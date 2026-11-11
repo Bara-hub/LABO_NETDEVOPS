@@ -1,0 +1,51 @@
+---
+- name: Vérification en lecture seule des équipements Cisco
+  hosts: ios
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  tasks:
+    - name: Vérifier la version IOS
+      cisco.ios.ios_command:
+        commands:
+          - show version
+      register: ios_version
+      changed_when: false
+
+    - name: Afficher la version IOS
+      ansible.builtin.debug:
+        var: ios_version.stdout_lines
+
+    - name: Vérifier les interfaces réseau
+      cisco.ios.ios_command:
+        commands:
+          - show ip interface brief
+      register: ios_interfaces
+      changed_when: false
+
+    - name: Afficher les interfaces réseau
+      ansible.builtin.debug:
+        var: ios_interfaces.stdout_lines
+
+    - name: Vérifier la table de routage
+      cisco.ios.ios_command:
+        commands:
+          - show ip route
+      register: ios_routes
+      changed_when: false
+
+    - name: Afficher la table de routage
+      ansible.builtin.debug:
+        var: ios_routes.stdout_lines
+
+    - name: Vérifier les voisins OSPF
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+      register: ospf_neighbors
+      changed_when: false
+
+    - name: Afficher les voisins OSPF
+      ansible.builtin.debug:
+        var: ospf_neighbors.stdout_lines

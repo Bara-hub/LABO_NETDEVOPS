@@ -1,0 +1,15 @@
+
+PLAY [Vérifier l'état initial des routeurs IOS] ********************************
+skipping: no hosts matched
+
+PLAY [Configurer R-EDGE] *******************************************************
+skipping: no hosts matched
+
+PLAY [Configurer R-CORE] *******************************************************
+skipping: no hosts matched
+
+PLAY [Configurer le pare-feu ASAv après validation explicite des paramètres] ***
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+

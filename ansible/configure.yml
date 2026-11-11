@@ -1,0 +1,62 @@
+---
+# ==========================================================
+# 1. CONFIGURATION R-EDGE
+# ==========================================================
+
+- name: Configuration contrôlée de R-EDGE
+  hosts: edge
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  pre_tasks:
+    - name: Vérifier l'autorisation explicite de configuration
+      ansible.builtin.assert:
+        that:
+          - netdevops_apply_config | default(false) | bool
+        fail_msg: >-
+          Configuration bloquée.
+          Utiliser -e netdevops_apply_config=true
+          après validation de la sauvegarde et du plan réseau.
+
+    - name: Vérifier la connectivité de R-EDGE
+      cisco.ios.ios_command:
+        commands:
+          - show ip interface brief
+          - show ip route
+      changed_when: false
+
+  roles:
+    - ios_base
+    - ios_edge
+
+# ==========================================================
+# 2. CONFIGURATION R-CORE
+# ==========================================================
+
+- name: Configuration contrôlée de R-CORE
+  hosts: core
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  pre_tasks:
+    - name: Vérifier l'autorisation explicite de configuration
+      ansible.builtin.assert:
+        that:
+          - netdevops_apply_config | default(false) | bool
+        fail_msg: >-
+          Configuration bloquée.
+          Utiliser -e netdevops_apply_config=true
+          après validation de la sauvegarde et du plan réseau.
+
+    - name: Vérifier la connectivité de R-CORE
+      cisco.ios.ios_command:
+        commands:
+          - show ip interface brief
+          - show ip route
+      changed_when: false
+
+  roles:
+    - ios_base
+    - ios_core

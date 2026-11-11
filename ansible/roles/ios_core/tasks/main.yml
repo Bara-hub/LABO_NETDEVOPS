@@ -1,0 +1,143 @@
+
+---
+# ==========================================================
+# 1. LOOPBACK
+# ==========================================================
+
+- name: Configurer Loopback0 de R-CORE
+  cisco.ios.ios_config:
+    parents:
+      - interface Loopback0
+    lines:
+      - "ip address {{ loopbacks.core }} 255.255.255.255"
+
+# ==========================================================
+# 2. SOUS-INTERFACES VLAN 802.1Q
+# ==========================================================
+
+# Cette configuration reste désactivée par défaut.
+# Ne l'activer que si G0/1 est réellement raccordée à un trunk.
+
+- name: Configurer les sous-interfaces VLAN de R-CORE
+  cisco.ios.ios_config:
+    parents:
+      - "interface GigabitEthernet0/1.{{ item.id }}"
+    lines:
+      - "description {{ item.name }}"
+      - "encapsulation dot1Q {{ item.id }}"
+      - "ip address {{ item.gateway }} {{ item.subnet | ansible.utils.ipaddr('netmask') }}"
+  loop: "{{ vlans }}"
+  when: core_vlan_trunk_enabled | bool
+
+# ==========================================================
+# 3. DHCP
+# ==========================================================
+
+- name: Configurer les adresses DHCP exclues
+  cisco.ios.ios_config:
+    lines:
+      - "ip dhcp excluded-address {{ dhcp.excluded[0] }} {{ dhcp.excluded[1] }}"
+  when: core_dhcp_enabled | bool
+
+- name: Configurer le pool DHCP
+  vars:
+    dhcp_vlan: "{{ vlans | selectattr('id', 'equalto', dhcp.vlan | int) | first }}"
+  cisco.ios.ios_config:
+    parents:
+      - "ip dhcp pool {{ dhcp.pool }}"
+    lines:
+      - "network {{ dhcp_vlan.subnet | ansible.utils.ipaddr('network') }} {{ dhcp_vlan.subnet | ansible.utils.ipaddr('netmask') }}"
+      - "default-router {{ dhcp_vlan.gateway }}"
+      - "dns-server {{ dhcp.dns }}"
+      - "lease 1"
+  when: core_dhcp_enabled | bool
+
+# ==========================================================
+# 4. ACL USERS OPTIONNELLE
+# ==========================================================
+
+- name: Vérifier les paramètres de l'ACL USERS
+  ansible.builtin.assert:
+    that:
+      - acl_users_interface | length > 0
+    fail_msg: >-
+      ACL_USERS est définie, mais aucune interface cible
+      n'est renseignée dans group_vars/all.yml.
+  when: acl_users | length > 0
+
+- name: Configurer l'ACL FILTER-USERS
+  cisco.ios.ios_acls:
+    config:
+      - afi: ipv4
+        acls:
+          - name: FILTER-USERS
+            acl_type: extended
+            aces: "{{ acl_users }}"
+    state: merged
+  when: acl_users | length > 0
+
+- name: Appliquer l'ACL FILTER-USERS
+  cisco.ios.ios_acl_interfaces:
+    config:
+      - name: "{{ acl_users_interface }}"
+        access_groups:
+          - afi: ipv4
+            acls:
+              - name: FILTER-USERS
+                direction: in
+    state: merged
+  when: acl_users | length > 0
+
+# ==========================================================
+# 5. CONSTRUCTION DES RESEAUX OSPF
+# ==========================================================
+
+- name: Initialiser les réseaux OSPF de R-CORE
+  ansible.builtin.set_fact:
+    ospf_networks:
+      - address: "{{ transit.network }}"
+        wildcard_bits: "{{ transit.wildcard }}"
+        area: "{{ ospf.area }}"
+
+      - address: "{{ loopbacks.core }}"
+        wildcard_bits: "0.0.0.0"
+        area: "{{ ospf.area }}"
+
+- name: Ajouter le réseau LAN physique à OSPF
+  ansible.builtin.set_fact:
+    ospf_networks: >-
+      {{ ospf_networks + [{
+        'address': core_lan.network,
+        'wildcard_bits': core_lan.wildcard,
+        'area': ospf.area
+      }] }}
+  when: core_lan.enabled | bool
+
+- name: Ajouter les réseaux VLAN à OSPF
+  ansible.builtin.set_fact:
+    ospf_networks: >-
+      {{ ospf_networks + [{
+        'address': item.subnet | ansible.utils.ipaddr('network'),
+        'wildcard_bits': item.subnet | ansible.utils.ipaddr('hostmask'),
+        'area': ospf.area
+      }] }}
+  loop: "{{ vlans }}"
+  when: core_vlan_trunk_enabled | bool
+
+# ==========================================================
+# 6. OSPF
+# ==========================================================
+
+- name: Configurer OSPF sur R-CORE
+  cisco.ios.ios_ospfv2:
+    config:
+      processes:
+        - process_id: "{{ ospf.process_id }}"
+          router_id: "{{ loopbacks.core }}"
+          passive_interfaces:
+            default: true
+            interface:
+              - name: "{{ ospf.active_interfaces.core | first }}"
+                set_interface: false
+          network: "{{ ospf_networks }}"
+    state: merged

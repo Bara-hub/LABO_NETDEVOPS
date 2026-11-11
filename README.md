@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # LABO
+=======
+# netdevops_code
+>>>>>>> 1e14a964 (premier-commit)
 
 
 
@@ -15,14 +19,22 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
+<<<<<<< HEAD
 git remote add origin https://gitlab.com/Bara-hub/labo.git
+=======
+git remote add origin https://gitlab.com/Bara-hub/netdevops_code.git
+>>>>>>> 1e14a964 (premier-commit)
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
+<<<<<<< HEAD
 * [Set up project integrations](https://gitlab.com/Bara-hub/labo/-/settings/integrations)
+=======
+* [Set up project integrations](https://gitlab.com/Bara-hub/netdevops_code/-/settings/integrations)
+>>>>>>> 1e14a964 (premier-commit)
 
 ## Collaborate with your team
 

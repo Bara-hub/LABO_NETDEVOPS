@@ -1,0 +1,357 @@
+[0m[1mcml2_lifecycle.lab: Refreshing state... [id=4cbe354d-5434-4efc-85de-f4f774ce8bdf][0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+[31m-[0m/[32m+[0m destroy and then create replacement[0m
+
+Terraform will perform the following actions:
+
+[1m  # cml2_lifecycle.lab[0m must be [1m[31mreplaced[0m
+[0m[31m-[0m/[32m+[0m[0m resource "cml2_lifecycle" "lab" {
+      [33m~[0m[0m booted   = true -> (known after apply)
+      [33m~[0m[0m id       = "4cbe354d-5434-4efc-85de-f4f774ce8bdf" -> (known after apply)
+      [33m~[0m[0m lab_id   = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" -> (known after apply)
+      [33m~[0m[0m nodes    = {
+          [31m-[0m[0m "36400171-cdf4-4cd3-b1f7-685b5d8b840f" = {
+              [31m-[0m[0m compute_id     = "eee5304f-8348-4497-a37a-a1b289d196f0" [90m-> null[0m[0m
+              [31m-[0m[0m configuration  = "System Bridge" [90m-> null[0m[0m
+              [31m-[0m[0m hide_links     = false [90m-> null[0m[0m
+              [31m-[0m[0m id             = "36400171-cdf4-4cd3-b1f7-685b5d8b840f" [90m-> null[0m[0m
+              [31m-[0m[0m interfaces     = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "5e59dd73-99c3-4493-a608-ff6f79ce28d8" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "port" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m lab_id         = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" [90m-> null[0m[0m
+              [31m-[0m[0m label          = "EXT-MGMT" [90m-> null[0m[0m
+              [31m-[0m[0m nodedefinition = "external_connector" [90m-> null[0m[0m
+              [31m-[0m[0m state          = "BOOTED" [90m-> null[0m[0m
+              [31m-[0m[0m tags           = [] [90m-> null[0m[0m
+              [31m-[0m[0m x              = -300 [90m-> null[0m[0m
+              [31m-[0m[0m y              = 0 [90m-> null[0m[0m
+            },
+          [31m-[0m[0m "62fa2cc2-0b09-4cc9-a53d-f0f84eb71fff" = {
+              [31m-[0m[0m boot_disk_size = 16 [90m-> null[0m[0m
+              [31m-[0m[0m compute_id     = "eee5304f-8348-4497-a37a-a1b289d196f0" [90m-> null[0m[0m
+              [31m-[0m[0m configurations = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m content = <<-EOT
+                            # Configuration IP du poste utilisateur
+                            ip address 10.10.10.10 255.255.255.0
+                            ip default-gateway 10.10.10.1
+                        EOT
+                      [31m-[0m[0m name    = "node.cfg"
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m data_volume    = 0 [90m-> null[0m[0m
+              [31m-[0m[0m hide_links     = false [90m-> null[0m[0m
+              [31m-[0m[0m id             = "62fa2cc2-0b09-4cc9-a53d-f0f84eb71fff" [90m-> null[0m[0m
+              [31m-[0m[0m interfaces     = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "49977ed4-92a5-45e7-8950-9e12b0212842" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "eth0" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:38:dd:ff" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m lab_id         = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" [90m-> null[0m[0m
+              [31m-[0m[0m label          = "PC-USER" [90m-> null[0m[0m
+              [31m-[0m[0m nodedefinition = "desktop" [90m-> null[0m[0m
+              [31m-[0m[0m state          = "BOOTED" [90m-> null[0m[0m
+              [31m-[0m[0m tags           = [] [90m-> null[0m[0m
+              [31m-[0m[0m vnc_key        = "85c46078-d649-4bbb-bbd4-12f5d9fd0e6d" [90m-> null[0m[0m
+              [31m-[0m[0m x              = 500 [90m-> null[0m[0m
+              [31m-[0m[0m y              = 100 [90m-> null[0m[0m
+            },
+          [31m-[0m[0m "aebaae50-9492-4b17-877a-9318e6e32637" = {
+              [31m-[0m[0m boot_disk_size = 2 [90m-> null[0m[0m
+              [31m-[0m[0m compute_id     = "eee5304f-8348-4497-a37a-a1b289d196f0" [90m-> null[0m[0m
+              [31m-[0m[0m configurations = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m content = <<-EOT
+                            hostname R-CORE
+                            ip domain-name lab.local
+                            username ansible privilege 15 secret Rhocj@4319
+                            enable secret cisco
+                            ip ssh version 2
+                            
+                            interface Loopback0
+                             ip address 10.255.0.2 255.255.255.255
+                             no shutdown
+                            
+                            interface Loopback1
+                             ip address 10.10.0.5 255.255.255.255
+                             no shutdown
+                            
+                            interface GigabitEthernet0/0
+                             description Link to R-EDGE
+                             ip address 10.10.0.2 255.255.255.252
+                             no shutdown
+                            
+                            interface GigabitEthernet0/1
+                             description Link to PC-USER
+                             ip address 10.10.10.1 255.255.255.0
+                             no shutdown
+                            
+                            router ospf 10
+                             router-id 10.255.0.2
+                             passive-interface default
+                             no passive-interface GigabitEthernet0/0
+                             network 10.10.0.0 0.0.0.3 area 0
+                             network 10.10.0.5 0.0.0.0 area 0
+                             network 10.10.10.0 0.0.0.255 area 0
+                             network 10.255.0.2 0.0.0.0 area 0
+                            
+                            line vty 0 4
+                             login local
+                             transport input ssh
+                             exec-timeout 10 0
+                            crypto key generate rsa modulus 2048
+                            end
+                            write memory
+                        EOT
+                      [31m-[0m[0m name    = "ios_config.txt"
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m data_volume    = 0 [90m-> null[0m[0m
+              [31m-[0m[0m hide_links     = false [90m-> null[0m[0m
+              [31m-[0m[0m id             = "aebaae50-9492-4b17-877a-9318e6e32637" [90m-> null[0m[0m
+              [31m-[0m[0m interfaces     = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "42d336da-5f9c-49dd-bdb5-97c326d2e414" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = false [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "Loopback0" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "707e0065-9d50-4332-ab54-8a64d5068c35" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/0" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:1c:77:93" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "6e241a6f-8f4b-4955-b837-d12a2d65dd33" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/1" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:23:33:d9" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "f3ed3bc7-1fb6-4c83-9561-2fff999b3e5f" [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = false [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/2" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:1e:35:76" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STOPPED" [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m lab_id         = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" [90m-> null[0m[0m
+              [31m-[0m[0m label          = "R-CORE" [90m-> null[0m[0m
+              [31m-[0m[0m nodedefinition = "iosv" [90m-> null[0m[0m
+              [31m-[0m[0m state          = "BOOTED" [90m-> null[0m[0m
+              [31m-[0m[0m tags           = [] [90m-> null[0m[0m
+              [31m-[0m[0m x              = 300 [90m-> null[0m[0m
+              [31m-[0m[0m y              = 0 [90m-> null[0m[0m
+            },
+          [31m-[0m[0m "cd3e02cb-1334-46d0-83e8-0cbcfbab0bba" = {
+              [31m-[0m[0m boot_disk_size = 2 [90m-> null[0m[0m
+              [31m-[0m[0m compute_id     = "eee5304f-8348-4497-a37a-a1b289d196f0" [90m-> null[0m[0m
+              [31m-[0m[0m configurations = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m content = <<-EOT
+                            hostname R-EDGE
+                            ip domain-name lab.local
+                            username ansible privilege 15 secret Rhocj@4319
+                            enable secret cisco
+                            ip ssh version 2
+                            
+                            interface Loopback0
+                             ip address 10.255.0.1 255.255.255.255
+                             no shutdown
+                            
+                            interface Loopback1
+                             ip address 10.10.0.3 255.255.255.255
+                             no shutdown
+                            
+                            interface GigabitEthernet0/0
+                             description Link to FW-EDGE
+                             ip address 10.10.0.9 255.255.255.252
+                             no shutdown
+                            
+                            interface GigabitEthernet0/1
+                             description Link to R-CORE
+                             ip address 10.10.0.1 255.255.255.252
+                             no shutdown
+                            
+                            ip route 0.0.0.0 0.0.0.0 10.10.0.10
+                            
+                            router ospf 10
+                             router-id 10.255.0.1
+                             passive-interface default
+                             no passive-interface GigabitEthernet0/1
+                             network 10.10.0.0 0.0.0.3 area 0
+                             network 10.10.0.3 0.0.0.0 area 0
+                             network 10.255.0.1 0.0.0.0 area 0
+                             default-information originate
+                            
+                            line vty 0 4
+                             login local
+                             transport input ssh
+                             exec-timeout 10 0
+                            crypto key generate rsa modulus 2048
+                            end
+                            write memory
+                        EOT
+                      [31m-[0m[0m name    = "ios_config.txt"
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m data_volume    = 0 [90m-> null[0m[0m
+              [31m-[0m[0m hide_links     = false [90m-> null[0m[0m
+              [31m-[0m[0m id             = "cd3e02cb-1334-46d0-83e8-0cbcfbab0bba" [90m-> null[0m[0m
+              [31m-[0m[0m interfaces     = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "ac130817-368a-47e5-8589-8b7d95e0fd72" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = false [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "Loopback0" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "2832b297-0900-493a-bafd-bdbd2831bff2" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/0" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:96:1a:b2" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "af6b719e-f8b7-4c8a-ba14-d951e8039999" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/1" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:8d:8b:65" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "eeea8944-e8e4-4259-8bc5-6e7605a91b20" [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = false [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/2" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:03:00:90" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STOPPED" [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m lab_id         = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" [90m-> null[0m[0m
+              [31m-[0m[0m label          = "R-EDGE" [90m-> null[0m[0m
+              [31m-[0m[0m nodedefinition = "iosv" [90m-> null[0m[0m
+              [31m-[0m[0m state          = "BOOTED" [90m-> null[0m[0m
+              [31m-[0m[0m tags           = [] [90m-> null[0m[0m
+              [31m-[0m[0m x              = 100 [90m-> null[0m[0m
+              [31m-[0m[0m y              = 0 [90m-> null[0m[0m
+            },
+          [31m-[0m[0m "ea82c98a-5150-4395-ac89-5edf0f867d33" = {
+              [31m-[0m[0m boot_disk_size = 15 [90m-> null[0m[0m
+              [31m-[0m[0m compute_id     = "eee5304f-8348-4497-a37a-a1b289d196f0" [90m-> null[0m[0m
+              [31m-[0m[0m configurations = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m content = <<-EOT
+                            hostname FW-EDGE
+                            interface GigabitEthernet0/0
+                             nameif outside
+                             security-level 0
+                             ip address 192.168.110.30 255.255.255.0
+                             no shutdown
+                            exit
+                            interface GigabitEthernet0/1
+                             nameif inside
+                             security-level 100
+                             ip address 10.10.0.10 255.255.255.252
+                             no shutdown
+                            exit
+                            same-security-traffic permit inter-interface
+                            same-security-traffic permit intra-interface
+                            access-list OUTSIDE-IN extended permit ip any any
+                            access-group OUTSIDE-IN in interface outside
+                            route outside 0.0.0.0 0.0.0.0 192.168.110.2 1
+                            route inside 10.10.0.0 255.255.0.0 10.10.0.9 1
+                            route inside 10.255.0.0 255.255.0.0 10.10.0.9 1
+                            username ansible privilege 15 password Rhocj@4319
+                            aaa authentication ssh console LOCAL
+                            ssh 0.0.0.0 0.0.0.0 outside
+                            ssh 0.0.0.0 0.0.0.0 inside
+                            crypto key generate rsa modulus 2048
+                            exit
+                        EOT
+                      [31m-[0m[0m name    = "day0-config"
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m data_volume    = 0 [90m-> null[0m[0m
+              [31m-[0m[0m hide_links     = false [90m-> null[0m[0m
+              [31m-[0m[0m id             = "ea82c98a-5150-4395-ac89-5edf0f867d33" [90m-> null[0m[0m
+              [31m-[0m[0m interfaces     = [
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "421e91dc-74f6-4f49-b998-921d5aa26bca" [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = false [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "Management0/0" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:73:02:3a" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STOPPED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "37bf9544-495d-44c3-9b9e-ad22efd8464d" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [
+                          [31m-[0m[0m "192.168.110.30",
+                        ] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/0" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:e7:e7:5d" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                  [31m-[0m[0m {
+                      [31m-[0m[0m id           = "2a301ed5-1a11-4307-9230-528ae9432b4a" [90m-> null[0m[0m
+                      [31m-[0m[0m ip4          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m ip6          = [] [90m-> null[0m[0m
+                      [31m-[0m[0m is_connected = true [90m-> null[0m[0m
+                      [31m-[0m[0m label        = "GigabitEthernet0/1" [90m-> null[0m[0m
+                      [31m-[0m[0m mac_address  = "52:54:00:92:13:6a" [90m-> null[0m[0m
+                      [31m-[0m[0m state        = "STARTED" [90m-> null[0m[0m
+                    },
+                ] [90m-> null[0m[0m
+              [31m-[0m[0m lab_id         = "dfdf42a5-9bc7-4eed-b3d5-221419cee7e0" [90m-> null[0m[0m
+              [31m-[0m[0m label          = "FW-EDGE" [90m-> null[0m[0m
+              [31m-[0m[0m nodedefinition = "asav" [90m-> null[0m[0m
+              [31m-[0m[0m state          = "BOOTED" [90m-> null[0m[0m
+              [31m-[0m[0m tags           = [] [90m-> null[0m[0m
+              [31m-[0m[0m x              = -100 [90m-> null[0m[0m
+              [31m-[0m[0m y              = 0 [90m-> null[0m[0m
+            },
+        } -> (known after apply)
+      [33m~[0m[0m topology = (sensitive value) [31m# forces replacement[0m[0m
+        [90m# (1 unchanged attribute hidden)[0m[0m
+    }
+
+[1mPlan:[0m [0m1 to add, 0 to change, 1 to destroy.
+
+Changes to Outputs:
+  [33m~[0m[0m lab_id = "4cbe354d-5434-4efc-85de-f4f774ce8bdf" -> (known after apply)
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

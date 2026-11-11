@@ -1,0 +1,197 @@
+stages:
+  - lint
+  - validate
+  - plan
+  - deploy
+  - test
+  - rollback
+
+variables:
+  PYTHONUNBUFFERED: "1"
+  ANSIBLE_FORCE_COLOR: "1"
+  ANSIBLE_HOST_KEY_CHECKING: "False"
+
+default:
+  image: python:3.11-slim
+  before_script:
+    - python -V
+    - pip install --no-cache-dir -r requirements.txt
+
+# ==========================================================
+# STAGE 1 : LINTING
+# ==========================================================
+
+lint:yaml:
+  stage: lint
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - yamllint -c .yamllint ansible/ terraform/
+  allow_failure: false
+
+lint:ansible:
+  stage: lint
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - ansible-lint ansible/site.yml ansible/configure.yml
+  allow_failure: true
+
+# ==========================================================
+# STAGE 2 : VALIDATION SOURCE UNIQUE DE VERITE & TF
+# ==========================================================
+
+validate:ssot_vars:
+  stage: validate
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - python scripts/check_vars.py
+
+validate:terraform:
+  stage: validate
+  image: hashicorp/terraform:1.6
+  before_script: []
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - bash scripts/tf_init.sh cml
+    - terraform -chdir=terraform/cml validate
+
+# ==========================================================
+# STAGE 3 : TERRAFORM PLAN
+# ==========================================================
+
+plan:terraform:
+  stage: plan
+  image: hashicorp/terraform:1.6
+  before_script: []
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - bash scripts/tf_init.sh cml
+    - terraform -chdir=terraform/cml plan -input=false
+
+# ==========================================================
+# STAGE 4 : DEPLOYMENT ANSIBLE
+# ==========================================================
+
+pre-deploy:check_routing:
+  stage: deploy
+  image: alpine:3.19
+  before_script:
+    - apk add --no-cache iputils openssh-client iproute2 nmap
+  rules:
+    - if: '$ROLLBACK != "true" && $CI_COMMIT_BRANCH == "main"'
+  script:
+    - |
+      set -e
+
+      echo "=== Vérification du routage Ubuntu ↔ CML2 ==="
+
+      # --- 1. Gateway FW-EDGE : ping ICMP ---
+      echo ""
+      echo "→ [1/4] Ping FW-EDGE (192.168.110.30)..."
+      if ! ping -c 2 -W 3 192.168.110.30 > /dev/null 2>&1; then
+        echo "✗ ERREUR : FW-EDGE (192.168.110.30) est inaccessible."
+        echo "  Causes possibles :"
+        echo "    - Lab CML2 non démarré (terraform apply ?)"
+        echo "    - Route 10.10.0.0/16 manquante sur le runner"
+        echo "    - ASAv encore en phase de boot (attendre ~90s)"
+        exit 1
+      fi
+      echo "✓ FW-EDGE répond au ping"
+
+      # --- 2. Vérification des routes kernel ---
+      echo ""
+      echo "→ [2/4] Vérification des routes statiques..."
+      MISSING_ROUTES=0
+      for subnet in "10.10.0.0/16" "10.255.0.0/16"; do
+        if ip route show "$subnet" | grep -q "192.168.110.30"; then
+          echo "✓ Route $subnet via 192.168.110.30 présente"
+        else
+          echo "✗ Route $subnet MANQUANTE"
+          MISSING_ROUTES=$((MISSING_ROUTES + 1))
+        fi
+      done
+      if [ "$MISSING_ROUTES" -gt 0 ]; then
+        echo "  Corrigez avec : bash scripts/setup_routes_cml.sh --persist"
+        exit 1
+      fi
+
+      # --- 3. Joignabilité SSH des équipements (port 22) ---
+      echo ""
+      echo "→ [3/4] Test SSH (port 22) sur les équipements IOS..."
+      UNREACHABLE=0
+      declare -A HOSTS=(
+        ["R-EDGE"]="10.10.0.1"
+        ["R-CORE"]="10.10.0.2"
+        ["FW-EDGE"]="192.168.110.30"
+      )
+      for label in "${!HOSTS[@]}"; do
+        ip="${HOSTS[$label]}"
+        if nmap -Pn -p 22 --open -T4 "$ip" 2>/dev/null | grep -q "22/tcp open"; then
+          echo "✓ $label ($ip) : SSH port 22 ouvert"
+        else
+          echo "✗ $label ($ip) : SSH port 22 inaccessible"
+          UNREACHABLE=$((UNREACHABLE + 1))
+        fi
+      done
+      if [ "$UNREACHABLE" -gt 0 ]; then
+        echo ""
+        echo "  $UNREACHABLE équipement(s) inaccessible(s)."
+        echo "  Vérifiez : boot CML2 complet, clé SSH, inventaire Ansible."
+        exit 1
+      fi
+
+      # --- 4. Résumé ---
+      echo ""
+      echo "→ [4/4] Routes actives vers le lab :"
+      ip route show | grep -E '(10\.10\.|10\.255\.)' | sed 's/^/  /'
+      echo ""
+      echo "✓✓ Routage Ubuntu ↔ CML2 entièrement opérationnel"
+
+deploy:network:
+  stage: deploy
+  needs:
+    - job: pre-deploy:check_routing
+  rules:
+    - if: '$ROLLBACK != "true" && $CI_COMMIT_BRANCH == "main"'
+      when: manual
+  script:
+    # 1. Sauvegarde avant modification
+    - ansible-playbook -i ansible/inventory/hosts.yml backups/backup.yml
+    # 2. Application de la configuration
+    - ansible-playbook -i ansible/inventory/hosts.yml ansible/configure.yml -e netdevops_apply_config=true
+  artifacts:
+    name: "network-backup-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - backups/
+    expire_in: 7 days
+
+# ==========================================================
+# STAGE 5 : INTEGRATION TESTS
+# ==========================================================
+
+test:network_health:
+  stage: test
+  rules:
+    - if: '$ROLLBACK != "true"'
+  script:
+    - ansible-playbook -i ansible/inventory/hosts.yml ansible/site.yml
+    - pytest -v tests/intégration/test_network.py
+
+# ==========================================================
+# STAGE 6 : CLOSED-LOOP AUTO-ROLLBACK (DÉCLENCHÉ PAR ZABBIX)
+# ==========================================================
+
+rollback:auto_remediation:
+  stage: rollback
+  rules:
+    - if: '$ROLLBACK == "true"'
+  script:
+    - echo "=== ALERTE ZABBIX RECUE : ENCLENCHEMENT DE L'AUTO-ROLLBACK ==="
+    - ansible-playbook -i ansible/inventory/hosts.yml ansible/rollback.yml
+    # Audit post-rollback
+    - ansible-playbook -i ansible/inventory/hosts.yml ansible/site.yml
+

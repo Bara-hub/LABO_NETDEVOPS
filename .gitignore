@@ -1,0 +1,27 @@
+# Terraform
+**/.terraform/**
+**/*.tfstate
+**/*.tfstate.*
+**/crash.log
+**/crash.*.log
+terraform.tfvars
+**/terraform.tfvars
+**/backend.gitlab.tf
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Ansible
+*.retry
+vault_password_file
+
+# Local outputs / credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+

@@ -1,0 +1,90 @@
+---
+# ==========================================================
+# Auto-Rollback — IOS (R-EDGE, R-CORE) + ASA (FW-EDGE)
+# Déclenché par Zabbix via la variable CI ROLLBACK=true
+# ==========================================================
+
+# --- 1. Rollback des routeurs IOS ---
+- name: Auto-Rollback de la configuration des routeurs IOS
+  hosts: ios
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  tasks:
+    - name: Vérifier l'existence du fichier de sauvegarde IOS
+      ansible.builtin.stat:
+        path: "{{ inventory_dir }}/../backups/{{ inventory_hostname }}-backup.cfg"
+      register: backup_file
+      delegate_to: localhost
+
+    - name: Bloquer si aucun backup n'est disponible
+      ansible.builtin.fail:
+        msg: "Rollback impossible : Fichier de sauvegarde introuvable pour {{ inventory_hostname }}"
+      when: not backup_file.stat.exists
+
+    - name: Restaurer la configuration de référence
+      cisco.ios.ios_config:
+        src: "{{ inventory_dir }}/../backups/{{ inventory_hostname }}-backup.cfg"
+        save_when: modified
+      register: restore_out
+
+    - name: Sauvegarder dans la mémoire NVRAM (write memory)
+      cisco.ios.ios_command:
+        commands:
+          - write memory
+      when: restore_out.changed
+
+    - name: Vérifier la reconvergence OSPF
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+          - show ip route ospf
+      register: post_check
+
+    - name: Afficher le statut après rollback IOS
+      ansible.builtin.debug:
+        var: post_check.stdout_lines
+
+# --- 2. Rollback du pare-feu ASA ---
+- name: Auto-Rollback de la configuration du pare-feu ASA
+  hosts: asa
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+
+  tasks:
+    - name: Vérifier l'existence du fichier de sauvegarde ASA
+      ansible.builtin.stat:
+        path: "{{ inventory_dir }}/../backups/{{ inventory_hostname }}-backup.cfg"
+      register: asa_backup_file
+      delegate_to: localhost
+
+    - name: Bloquer si aucun backup ASA n'est disponible
+      ansible.builtin.fail:
+        msg: "Rollback ASA impossible : Fichier de sauvegarde introuvable pour {{ inventory_hostname }}"
+      when: not asa_backup_file.stat.exists
+
+    - name: Restaurer la configuration de référence ASA
+      cisco.asa.asa_config:
+        src: "{{ inventory_dir }}/../backups/{{ inventory_hostname }}-backup.cfg"
+        save_when: modified
+      register: asa_restore_out
+
+    - name: Sauvegarder en NVRAM (write memory ASA)
+      cisco.asa.asa_command:
+        commands:
+          - write memory
+      when: asa_restore_out.changed
+
+    - name: Vérifier l'état des interfaces ASA après rollback
+      cisco.asa.asa_command:
+        commands:
+          - show interface ip brief
+          - show route
+      register: asa_post_check
+
+    - name: Afficher le statut après rollback ASA
+      ansible.builtin.debug:
+        var: asa_post_check.stdout_lines
+

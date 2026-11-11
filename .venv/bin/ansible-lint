@@ -1,0 +1,6 @@
+#!/home/bara/Documents/LABO_NETDEVOPS/.venv/bin/python
+import sys
+from ansiblelint.__main__ import _run_cli_entrypoint
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(_run_cli_entrypoint())
