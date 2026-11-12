@@ -25,3 +25,6 @@ vault_password_file
 *.key
 
 
+
+# Environnement Python
+.venv/
