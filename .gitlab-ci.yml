@@ -12,6 +12,9 @@ variables:
   ANSIBLE_HOST_KEY_CHECKING: "False"
 
 default:
+  tags:
+    - runner-netdevops-ubuntu
+
   image: python:3.11-slim
   before_script:
     - python -V

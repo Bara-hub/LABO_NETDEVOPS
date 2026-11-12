@@ -1,0 +1,7 @@
+glpat-lQZ3Oiznt-swFy54IfnrpGM6MQpvOjEKdTpxZXh3eQ8.01.171222bt0
+
+
+gitlab-runner register  
+
+--url https://gitlab.com  
+--token glrt-H-PKbv3upFuc3lTbSqhJZ2M6MQpvOjEKcDoxZ3c1MWoKdDozCnU6bG1nN3cc.01.1o1jodogp
